@@ -28,12 +28,8 @@ var (
 	ErrServiceUnavailable = NewError(http.StatusServiceUnavailable)
 )
 
-func NewResult(code int, data interface{}) *Result {
-	return ResultOf(code, data)
-}
-
 // ResultOf 构造Result
-func ResultOf(code int, data ...interface{}) *Result {
+func ResultOf(code int, data interface{}) *Result {
 	return &Result{
 		Code:    code,
 		Success: true,
