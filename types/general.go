@@ -28,10 +28,6 @@ var (
 	ErrServiceUnavailable = NewError(http.StatusServiceUnavailable)
 )
 
-func (err *Error) Error() string {
-	return err.Message
-}
-
 func NewResult(code int, data interface{}) *Result {
 	return ResultOf(code, data)
 }
@@ -44,10 +40,13 @@ func ResultOf(code int, data ...interface{}) *Result {
 		Data:    data,
 	}
 }
+
+func (err Error) Error() string {
+	return err.Message
+}
 func ErrorOf(err error) *Error {
 	return &Error{Code: http.StatusInternalServerError, Success: false, Message: err.Error(), Internal: err}
 }
-
 func NewError(code int, message ...string) *Error {
 	he := &Error{Code: code, Success: false}
 	if len(message) > 0 {
@@ -55,11 +54,14 @@ func NewError(code int, message ...string) *Error {
 	}
 	return he
 }
-
 func NewHttpError(code int, message ...string) *Error {
 	he := &Error{Code: code, Success: false, Message: http.StatusText(code)}
 	if len(message) > 0 {
 		he.Message = message[0]
 	}
 	return he
+}
+func IsError(err error) bool {
+	_, ok := err.(Error)
+	return ok
 }
