@@ -16,9 +16,9 @@ type (
 	// Result 返回结果
 	Result struct {
 		Code    int         `json:"code"`
-		Success bool        `json:"success"`
+		Success bool        `json:"success,omitempty"`
 		Message interface{} `json:"message,omitempty"`
-		Data    interface{} `json:"file,omitempty"`
+		Data    interface{} `json:"data,omitempty"`
 	}
 )
 
