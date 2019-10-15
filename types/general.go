@@ -32,15 +32,18 @@ func (err *Error) Error() string {
 	return err.Message
 }
 
-// ResultOf 构造Result
 func NewResult(code int, data interface{}) *Result {
+	return ResultOf(code, data)
+}
+
+// ResultOf 构造Result
+func ResultOf(code int, data ...interface{}) *Result {
 	return &Result{
 		Code:    code,
 		Success: true,
 		Data:    data,
 	}
 }
-
 func ErrorOf(err error) *Error {
 	return &Error{Code: http.StatusInternalServerError, Success: false, Message: err.Error(), Internal: err}
 }
