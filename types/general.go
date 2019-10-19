@@ -23,9 +23,10 @@ type (
 )
 
 var (
-	ErrNotFound           = NewError(http.StatusNotFound)
-	ErrBadRequest         = NewError(http.StatusBadRequest)
-	ErrServiceUnavailable = NewError(http.StatusServiceUnavailable)
+	ErrNotFound            = NewHttpError(http.StatusNotFound)
+	ErrBadRequest          = NewHttpError(http.StatusBadRequest)
+	ErrServiceUnavailable  = NewHttpError(http.StatusServiceUnavailable)
+	ErrInternalServerError = NewHttpError(http.StatusInternalServerError)
 )
 
 // Result 构造Result
