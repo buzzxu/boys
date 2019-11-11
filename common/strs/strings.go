@@ -22,6 +22,24 @@ func HashSHA1(str string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+func IsLetter(ch rune) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch >= 0x80 && unicode.IsLetter(ch)
+}
+
+func TruncateString(str string, limit int) string {
+	if len(str) < limit {
+		return str
+	}
+	return str[:limit]
+}
+
+func EllipsisString(str string, length int) string {
+	if len(str) < length {
+		return str
+	}
+	return str[:length-3] + "..."
+}
+
 // IsAllLowerCase checks if the string contains only lowercase characters.
 func IsAllLowerCase(str string) bool {
 	if IsEmpty(str) {
