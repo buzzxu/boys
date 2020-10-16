@@ -3,10 +3,16 @@ package conv
 import (
 	"errors"
 	"fmt"
+	"github.com/buzzxu/boys/common/bytess"
 	"reflect"
 	"strconv"
 	"time"
 )
+
+// []byte to string
+func String(bytes *[]byte) *string {
+	return bytess.String(bytes)
+}
 
 func IntPtrTo64(ptr interface{}) (value int64) {
 	if v := reflect.ValueOf(ptr); v.Kind() == reflect.Ptr {

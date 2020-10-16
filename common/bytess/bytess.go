@@ -3,7 +3,12 @@ package bytess
 import (
 	"github.com/buzzxu/boys/types"
 	"net/http"
+	"unsafe"
 )
+
+func String(bytes *[]byte) *string {
+	return (*string)(unsafe.Pointer(&bytes))
+}
 
 //是否是图片
 func IsImage(buff []byte) (bool, string) {
