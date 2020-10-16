@@ -24,8 +24,8 @@ func JSON(url string, data interface{}, result interface{}, funcHeader func(head
 	if err != nil {
 		return err
 	}
-	err = Http("POST", url, bytes.NewBuffer(b), funcHeader, func(body *io.ReadCloser) error {
-		return json.NewDecoder(*body).Decode(result)
+	err = Http("POST", url, bytes.NewBuffer(b), funcHeader, func(response *http.Response) error {
+		return json.NewDecoder(response.Body).Decode(result)
 	})
 	if err != nil {
 		return err
@@ -33,14 +33,14 @@ func JSON(url string, data interface{}, result interface{}, funcHeader func(head
 	return nil
 }
 
-func PostForm(url string, data url.Values, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
+func PostForm(url string, data url.Values, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
 	return Http("POST", url, strings.NewReader(data.Encode()), func(header http.Header) {
 		header.Set("Content-Type", "application/x-www-form-urlencoded")
 		funcHeader(header)
-	}, funcBody)
+	}, funcResponse)
 }
 
-func Upload(url string, params map[string]string, fileName, path string, funcBody func(body *io.ReadCloser) error) error {
+func Upload(url string, params map[string]string, fileName, path string, funcResponse func(response *http.Response) error) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -61,27 +61,27 @@ func Upload(url string, params map[string]string, fileName, path string, funcBod
 	}
 	err = Http("POST", url, body, func(header http.Header) {
 		header.Set("Content-Type", writer.FormDataContentType())
-	}, funcBody)
+	}, funcResponse)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func Http(method, url string, body io.Reader, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
-	return HttpWithContext(context.Background(), method, url, body, funcHeader, funcBody)
+func Http(method, url string, body io.Reader, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
+	return HttpWithContext(context.Background(), method, url, body, funcHeader, funcResponse)
 }
-func HttpWithContext(ctx context.Context, method, url string, body io.Reader, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
+func HttpWithContext(ctx context.Context, method, url string, body io.Reader, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
 	return CallWithContext(ctx, method, url, body, func() *http.Client {
 		return HttpClient
-	}, funcHeader, funcBody)
+	}, funcHeader, funcResponse)
 }
 
-func Call(method, url string, body io.Reader, funcClient func() *http.Client, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
-	return CallWithContext(context.Background(), method, url, body, funcClient, funcHeader, funcBody)
+func Call(method, url string, body io.Reader, funcClient func() *http.Client, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
+	return CallWithContext(context.Background(), method, url, body, funcClient, funcHeader, funcResponse)
 }
 
-func CallWithContext(ctx context.Context, method, url string, body io.Reader, funcClient func() *http.Client, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
+func CallWithContext(ctx context.Context, method, url string, body io.Reader, funcClient func() *http.Client, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func CallWithContext(ctx context.Context, method, url string, body io.Reader, fu
 	resp, err := funcClient().Do(req)
 	defer close(resp)
 	if resp.StatusCode == 200 {
-		return funcBody(&resp.Body)
+		return funcResponse(resp)
 	}
 	return errors.New(resp.Status)
 }
