@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -25,31 +24,32 @@ func JSON(url string, data interface{}, result interface{}, funcHeader func(head
 	if err != nil {
 		return err
 	}
-	body, err := Http("POST", url, bytes.NewBuffer(b), funcHeader)
+	err = Http("POST", url, bytes.NewBuffer(b), funcHeader, func(body *io.ReadCloser) error {
+		return json.NewDecoder(*body).Decode(result)
+	})
 	if err != nil {
 		return err
 	}
-	json.Unmarshal(*body, result)
 	return nil
 }
 
-func PostForm(url string, data url.Values, funcHeader func(header http.Header)) (*[]byte, error) {
+func PostForm(url string, data url.Values, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
 	return Http("POST", url, strings.NewReader(data.Encode()), func(header http.Header) {
 		header.Set("Content-Type", "application/x-www-form-urlencoded")
 		funcHeader(header)
-	})
+	}, funcBody)
 }
 
-func Upload(url string, params map[string]string, fileName, path string) (*[]byte, error) {
+func Upload(url string, params map[string]string, fileName, path string, funcBody func(body *io.ReadCloser) error) error {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	part, err := writer.CreateFormFile(fileName, filepath.Base(path))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	_, err = io.Copy(part, file)
 	for key, val := range params {
@@ -57,31 +57,34 @@ func Upload(url string, params map[string]string, fileName, path string) (*[]byt
 	}
 	err = writer.Close()
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return Http("POST", url, body, func(header http.Header) {
+	err = Http("POST", url, body, func(header http.Header) {
 		header.Set("Content-Type", writer.FormDataContentType())
-	})
+	}, funcBody)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func Http(method, url string, body io.Reader, funcHeader func(header http.Header)) (*[]byte, error) {
-	return HttpWithContext(context.Background(), method, url, body, funcHeader)
+func Http(method, url string, body io.Reader, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
+	return HttpWithContext(context.Background(), method, url, body, funcHeader, funcBody)
 }
-func HttpWithContext(ctx context.Context, method, url string, body io.Reader, funcHeader func(header http.Header)) (*[]byte, error) {
+func HttpWithContext(ctx context.Context, method, url string, body io.Reader, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
 	return CallWithContext(ctx, method, url, body, func() *http.Client {
 		return HttpClient
-	}, funcHeader)
+	}, funcHeader, funcBody)
 }
 
-func Call(method, url string, body io.Reader, funcClient func() *http.Client, funcHeader func(header http.Header)) (*[]byte, error) {
-	return CallWithContext(context.Background(), method, url, body, funcClient, funcHeader)
+func Call(method, url string, body io.Reader, funcClient func() *http.Client, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
+	return CallWithContext(context.Background(), method, url, body, funcClient, funcHeader, funcBody)
 }
 
-func CallWithContext(ctx context.Context, method, url string, body io.Reader, funcClient func() *http.Client, funcHeader func(header http.Header)) (*[]byte, error) {
+func CallWithContext(ctx context.Context, method, url string, body io.Reader, funcClient func() *http.Client, funcHeader func(header http.Header), funcBody func(body *io.ReadCloser) error) error {
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if funcHeader != nil {
 		funcHeader(req.Header)
@@ -89,13 +92,9 @@ func CallWithContext(ctx context.Context, method, url string, body io.Reader, fu
 	resp, err := funcClient().Do(req)
 	defer close(resp)
 	if resp.StatusCode == 200 {
-		data, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return &data, nil
+		return funcBody(&resp.Body)
 	}
-	return nil, errors.New(resp.Status)
+	return errors.New(resp.Status)
 }
 
 func close(resp *http.Response) {
