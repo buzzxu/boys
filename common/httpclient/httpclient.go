@@ -17,7 +17,7 @@ import (
 )
 
 var HttpClient = &http.Client{
-	Timeout: 3 * time.Second,
+	Timeout: 30 * time.Second,
 }
 
 func JSON(url string, data interface{}, result interface{}, funcHeader func(header http.Header)) error {
@@ -87,7 +87,7 @@ func CallWithContext(ctx context.Context, method, url string, body io.Reader, fu
 		funcHeader(req.Header)
 	}
 	resp, err := funcClient().Do(req)
-	defer resp.Body.Close()
+	defer close(resp)
 	if resp.StatusCode == 200 {
 		data, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -96,4 +96,10 @@ func CallWithContext(ctx context.Context, method, url string, body io.Reader, fu
 		return &data, nil
 	}
 	return nil, errors.New(resp.Status)
+}
+
+func close(resp *http.Response) {
+	if resp != nil && resp.Body != nil {
+		resp.Body.Close()
+	}
 }
