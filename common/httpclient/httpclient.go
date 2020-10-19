@@ -90,6 +90,9 @@ func CallWithContext(ctx context.Context, method, url string, body io.Reader, fu
 		funcHeader(req.Header)
 	}
 	resp, err := funcClient().Do(req)
+	if err != nil {
+		return err
+	}
 	defer close(resp)
 	if resp.StatusCode == 200 {
 		return funcResponse(resp)
