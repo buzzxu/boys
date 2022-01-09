@@ -14,7 +14,7 @@ func String(bytes *[]byte) *string {
 func IsImage(buff []byte) (bool, string) {
 	contentType := http.DetectContentType(buff)
 	switch contentType {
-	case "image/jpeg", "image/jpg", "image/webp", "image/gif", "image/png":
+	case "image/jpeg", "image/jpg", "image/webp", "image/gif", "image/png", "image/heic", "image/heif":
 		return true, contentType
 	default:
 		return false, ""
