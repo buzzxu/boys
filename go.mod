@@ -1,5 +1,5 @@
 module github.com/buzzxu/boys
 
-go 1.16
+go 1.18
 
-require golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
+require golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
