@@ -20,13 +20,17 @@ var HttpClient = &http.Client{
 }
 
 func JSON(url string, data interface{}, result interface{}, funcHeader func(header http.Header)) error {
+	return POST(url, data, funcHeader, func(response *http.Response) error {
+		return json.NewDecoder(response.Body).Decode(result)
+	})
+}
+
+func POST(url string, data interface{}, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
 	b, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	err = Http("POST", url, bytes.NewBuffer(b), funcHeader, func(response *http.Response) error {
-		return json.NewDecoder(response.Body).Decode(result)
-	})
+	err = Http("POST", url, bytes.NewBuffer(b), funcHeader, funcResponse)
 	if err != nil {
 		return err
 	}
