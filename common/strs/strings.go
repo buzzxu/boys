@@ -376,3 +376,12 @@ func EndsWithAnyIgnoreCase(str string, suffixes ...string) bool {
 	}
 	return false
 }
+
+// Concat
+func Concat(strs ...string) string {
+	var b strings.Builder
+	for _, v := range strs {
+		b.WriteString(v)
+	}
+	return b.String()
+}
