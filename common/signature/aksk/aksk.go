@@ -10,6 +10,27 @@ import (
 	"strings"
 )
 
+type AKSK uint
+
+const (
+	SHA256 AKSK = 1 + iota
+	SHA3_256
+	SHA3_512
+)
+
+func (aksk AKSK) Hash() crypto.Hash {
+	switch aksk {
+	case SHA256:
+		return crypto.SHA256
+	case SHA3_256:
+		return crypto.SHA3_256
+	case SHA3_512:
+		return crypto.SHA3_512
+	default:
+		return crypto.SHA3_256
+	}
+}
+
 // GenAppKey 生成appkey
 func GenAppKey() string {
 	return strings.ToLower(radom.Alphabetic(16))
@@ -26,26 +47,45 @@ func GenAppSecretBy(appKey string) string {
 }
 
 // Signature 生成签名
+func (aksk AKSK) Signature(content, secret string) (string, error) {
+	return signature(content, secret, aksk.Hash())
+}
+
+// Verify 验证签名
+func (aksk AKSK) Verify(content, sign, secret string) error {
+	return verify(content, sign, secret, aksk.Hash())
+}
+
+// Signature 生成签名 默认 SHA256
 func Signature(content, secret string) (string, error) {
-	if !crypto.SHA3_256.Available() {
-		return "", errors.New("SHA3_256加密算法不可用")
+	return signature(content, secret, crypto.SHA256)
+}
+
+// Verify 验签 默认 SHA256
+func Verify(content, sign, secret string) error {
+	return verify(content, sign, secret, crypto.SHA256)
+}
+
+// signature 生成签名
+func signature(content, secret string, hash crypto.Hash) (string, error) {
+	if !hash.Available() {
+		return "", errors.New(hash.String() + "加密算法不可用")
 	}
-	hasher := hmac.New(crypto.SHA3_256.New, []byte(secret))
+	hasher := hmac.New(hash.New, []byte(secret))
 	hasher.Write([]byte(content))
 	return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
-// Verify 验签
-func Verify(content, sign, secret string) error {
+// verify 验签
+func verify(content, sign, secret string, hash crypto.Hash) error {
 	sig, err := hex.DecodeString(sign)
 	if err != nil {
 		return err
 	}
-
-	if !crypto.SHA3_256.Available() {
-		return errors.New("SHA3_256加密算法不可用")
+	if !hash.Available() {
+		return errors.New(hash.String() + "加密算法不可用")
 	}
-	hasher := hmac.New(crypto.SHA3_256.New, []byte(secret))
+	hasher := hmac.New(hash.New, []byte(secret))
 	hasher.Write([]byte(content))
 	if !hmac.Equal(sig, hasher.Sum(nil)) {
 		return errors.New("验证签名失败")
