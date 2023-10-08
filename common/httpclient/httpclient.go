@@ -3,8 +3,8 @@ package httpclient
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
+	jsoniter "github.com/json-iterator/go"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -16,21 +16,23 @@ import (
 )
 
 var HttpClient = &http.Client{
-	Timeout: 30 * time.Second,
+	Timeout: 10 * time.Minute,
 }
 
 func JSON(url string, data interface{}, result interface{}, funcHeader func(header http.Header)) error {
 	return POST(url, data, funcHeader, func(response *http.Response) error {
+		var json = jsoniter.ConfigCompatibleWithStandardLibrary
 		return json.NewDecoder(response.Body).Decode(result)
 	})
 }
 
 func POST(url string, data interface{}, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	b, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	err = Http("POST", url, bytes.NewBuffer(b), funcHeader, funcResponse)
+	err = Http(http.MethodPost, url, bytes.NewBuffer(b), funcHeader, funcResponse)
 	if err != nil {
 		return err
 	}
@@ -38,7 +40,7 @@ func POST(url string, data interface{}, funcHeader func(header http.Header), fun
 }
 
 func PostForm(url string, data url.Values, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
-	return Http("POST", url, strings.NewReader(data.Encode()), func(header http.Header) {
+	return Http(http.MethodPost, url, strings.NewReader(data.Encode()), func(header http.Header) {
 		header.Set("Content-Type", "application/x-www-form-urlencoded")
 		funcHeader(header)
 	}, funcResponse)
@@ -63,7 +65,7 @@ func Upload(url string, params map[string]string, fileName, path string, funcRes
 	if err != nil {
 		return err
 	}
-	err = Http("POST", url, body, func(header http.Header) {
+	err = Http(http.MethodPost, url, body, func(header http.Header) {
 		header.Set("Content-Type", writer.FormDataContentType())
 	}, funcResponse)
 	if err != nil {
