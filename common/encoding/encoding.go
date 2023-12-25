@@ -9,13 +9,13 @@ import (
 	"errors"
 )
 
-//EncryptConfig 加密配置
+// EncryptConfig 加密配置
 type EncryptConfig struct {
 	Key string
 	IV  string
 }
 
-//JSON JSON格式化增加对[]byte的支持
+// JSON JSON格式化增加对[]byte的支持
 func JSON(o interface{}) string {
 	var v []byte
 	switch o1 := o.(type) {
@@ -41,14 +41,14 @@ func JSON(o interface{}) string {
 	return ""
 }
 
-//填充到BlockSize整数倍长度，如果正好就是对的长度，再多填充一个BlockSize长度
+// 填充到BlockSize整数倍长度，如果正好就是对的长度，再多填充一个BlockSize长度
 func pad(src []byte) []byte {
 	padding := aes.BlockSize - len(src)%aes.BlockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(src, padtext...)
 }
 
-//去除填充的字节
+// 去除填充的字节
 func unpad(src []byte) ([]byte, error) {
 	length := len(src)
 	if length == 0 {
@@ -61,7 +61,7 @@ func unpad(src []byte) ([]byte, error) {
 	return src[:(length - unpadding)], nil
 }
 
-//Encrypt 加密
+// Encrypt 加密
 func Encrypt(text string, c *EncryptConfig) (string, error) {
 	if "" == text {
 		return "", nil
@@ -78,7 +78,7 @@ func Encrypt(text string, c *EncryptConfig) (string, error) {
 	return finalMsg, nil
 }
 
-//Decrypt 解密
+// Decrypt 解密
 func Decrypt(text string, c *EncryptConfig) (string, error) {
 	if "" == text {
 		return "", nil

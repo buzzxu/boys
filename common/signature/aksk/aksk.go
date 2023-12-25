@@ -3,8 +3,10 @@ package aksk
 import (
 	"crypto"
 	"crypto/hmac"
+	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/buzzxu/boys/common/cryptos"
 	"github.com/buzzxu/boys/common/radom"
 	"strings"
@@ -16,6 +18,7 @@ const (
 	SHA256 AKSK = 1 + iota
 	SHA3_256
 	SHA3_512
+	MD5
 )
 
 func (aksk AKSK) Hash() crypto.Hash {
@@ -47,27 +50,22 @@ func GenAppSecretBy(appKey string) string {
 }
 
 // Signature 生成签名
-func (aksk AKSK) Signature(content, secret string) (string, error) {
-	return signature(content, secret, aksk.Hash())
+func (aksk AKSK) Signature(appId, appSecret, nonce string, timestamp int64) (string, error) {
+	concatenatedString := appId + appSecret + nonce + fmt.Sprintf("%v", timestamp)
+	return Signature(concatenatedString, appSecret, aksk.Hash())
 }
 
-// Verify 验证签名
-func (aksk AKSK) Verify(content, sign, secret string) error {
-	return verify(content, sign, secret, aksk.Hash())
+// SHA1 sha1签名
+func SHA1(appId, appSecret, nonce string, timestamp int64) string {
+	message := appId + appSecret + nonce + fmt.Sprintf("%v", timestamp)
+	h := sha1.New()
+	h.Write([]byte(message))
+	hashed := h.Sum(nil)
+	return hex.EncodeToString(hashed)
 }
 
-// Signature 生成签名 默认 SHA256
-func Signature(content, secret string) (string, error) {
-	return signature(content, secret, crypto.SHA256)
-}
-
-// Verify 验签 默认 SHA256
-func Verify(content, sign, secret string) error {
-	return verify(content, sign, secret, crypto.SHA256)
-}
-
-// signature 生成签名
-func signature(content, secret string, hash crypto.Hash) (string, error) {
+// Signature 生成签名
+func Signature(content, secret string, hash crypto.Hash) (string, error) {
 	if !hash.Available() {
 		return "", errors.New(hash.String() + "加密算法不可用")
 	}
@@ -76,8 +74,8 @@ func signature(content, secret string, hash crypto.Hash) (string, error) {
 	return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
-// verify 验签
-func verify(content, sign, secret string, hash crypto.Hash) error {
+// Verify 验签
+func Verify(content, sign, secret string, hash crypto.Hash) error {
 	sig, err := hex.DecodeString(sign)
 	if err != nil {
 		return err

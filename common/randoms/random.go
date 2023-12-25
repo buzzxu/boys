@@ -72,7 +72,7 @@ func randomBase(c chan int64) {
 	}
 }
 
-//Uniqid 随机数，length是需要返回的长度，只支持10~19位
+// Uniqid 随机数，length是需要返回的长度，只支持10~19位
 func Uniqid(length int) int64 {
 	if length < 10 || length > 19 {
 		return 0

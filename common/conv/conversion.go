@@ -52,7 +52,7 @@ func UintPtrTo64(ptr interface{}) (value uint64) {
 	return
 }
 
-//StructToMap struct 转Map
+// StructToMap struct 转Map
 func StructToMap(obj interface{}) map[string]interface{} {
 	t := reflect.TypeOf(obj)
 	v := reflect.ValueOf(obj)
@@ -69,7 +69,7 @@ func StructToMap(obj interface{}) map[string]interface{} {
 	return data
 }
 
-//MapToStruct map转Struct
+// MapToStruct map转Struct
 func MapToStruct(data map[string]interface{}, obj interface{}) error {
 	for k, v := range data {
 		err := setField(obj, k, v)
@@ -80,7 +80,7 @@ func MapToStruct(data map[string]interface{}, obj interface{}) error {
 	return nil
 }
 
-//setField 用map的值替换结构的值
+// setField 用map的值替换结构的值
 func setField(obj interface{}, name string, value interface{}) error {
 	structValue := reflect.ValueOf(obj).Elem()        //结构体属性值
 	structFieldValue := structValue.FieldByName(name) //结构体单个属性值
@@ -103,7 +103,7 @@ func setField(obj interface{}, name string, value interface{}) error {
 	return nil
 }
 
-//typeConversion 类型转换
+// typeConversion 类型转换
 func typeConversion(value string, ntype string) (reflect.Value, error) {
 	if ntype == "string" {
 		return reflect.ValueOf(value), nil

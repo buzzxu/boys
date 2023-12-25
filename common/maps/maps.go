@@ -1,6 +1,6 @@
 package maps
 
-//group
+// group
 func GroupBy(maps []map[string]interface{}, key string) map[string][]map[string]interface{} {
 	groups := make(map[string][]map[string]interface{})
 	for _, m := range maps {
@@ -10,7 +10,7 @@ func GroupBy(maps []map[string]interface{}, key string) map[string][]map[string]
 	return groups
 }
 
-//filter and output
+// filter and output
 func Filter(maps map[string]interface{}, predicate func(K string) bool) map[string]interface{} {
 	m := make(map[string]interface{}, 0)
 	for k, v := range maps {
@@ -21,7 +21,7 @@ func Filter(maps map[string]interface{}, predicate func(K string) bool) map[stri
 	return m
 }
 
-//filter and output arrays
+// filter and output arrays
 func FilterToArrays(maps map[string]interface{}, predicate func(K string) bool) []interface{} {
 	arrays := make([]interface{}, 0)
 	for k, v := range maps {

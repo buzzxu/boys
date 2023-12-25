@@ -10,7 +10,7 @@ func String(bytes *[]byte) *string {
 	return (*string)(unsafe.Pointer(&bytes))
 }
 
-//是否是图片
+// 是否是图片
 func IsImage(buff []byte) (bool, string) {
 	contentType := http.DetectContentType(buff)
 	switch contentType {
@@ -21,7 +21,7 @@ func IsImage(buff []byte) (bool, string) {
 	}
 }
 
-//图片base64前缀
+// 图片base64前缀
 func PrefixImageBase64(data *[]byte) (string, error) {
 	if flag, contentType := IsImage(*data); flag {
 		return "data:" + contentType + ";base64,", nil

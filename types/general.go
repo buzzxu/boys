@@ -38,7 +38,7 @@ func ResultOf(code int, data interface{}) *Result {
 	}
 }
 
-//Result 无Data
+// Result 无Data
 func ResultNilData(code int) *Result {
 	return &Result{
 		Code:    code,
