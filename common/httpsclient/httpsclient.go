@@ -24,7 +24,12 @@ func JSON(url string, data interface{}, result interface{}, funcHeader func(head
 	if err != nil {
 		return err
 	}
-	err = Https("POST", url, bytes.NewBuffer(b), funcHeader, func(response *http.Response) error {
+	err = Https("POST", url, bytes.NewBuffer(b), func(header http.Header) {
+		header.Set("Content-Type", "application/json")
+		if funcHeader != nil {
+			funcHeader(header)
+		}
+	}, func(response *http.Response) error {
 		return json.NewDecoder(response.Body).Decode(result)
 	})
 	if err != nil {

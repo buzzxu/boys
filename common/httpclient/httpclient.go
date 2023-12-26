@@ -20,7 +20,13 @@ var HttpClient = &http.Client{
 }
 
 func JSON(url string, data interface{}, result interface{}, funcHeader func(header http.Header)) error {
-	return POST(url, data, funcHeader, func(response *http.Response) error {
+
+	return POST(url, data, func(header http.Header) {
+		header.Set("Content-Type", "application/json")
+		if funcHeader != nil {
+			funcHeader(header)
+		}
+	}, func(response *http.Response) error {
 		var json = jsoniter.ConfigCompatibleWithStandardLibrary
 		return json.NewDecoder(response.Body).Decode(result)
 	})
