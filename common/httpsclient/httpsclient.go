@@ -14,7 +14,7 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 var HttpsClient = &http.Client{
-	Timeout: 3 * time.Second,
+	Timeout: 10 * time.Minute,
 	Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	},
