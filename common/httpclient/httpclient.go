@@ -22,7 +22,6 @@ var HttpClient = &http.Client{
 }
 
 func JSON(url string, data interface{}, result interface{}, funcHeader func(header http.Header)) error {
-
 	return POST(url, data, func(header http.Header) {
 		header.Set("Content-Type", "application/json")
 		if funcHeader != nil {
@@ -35,7 +34,6 @@ func JSON(url string, data interface{}, result interface{}, funcHeader func(head
 }
 
 func POST(url string, data interface{}, funcHeader func(header http.Header), funcResponse func(response *http.Response) error) error {
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	b, err := json.Marshal(data)
 	if err != nil {
 		return err

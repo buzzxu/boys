@@ -21,7 +21,6 @@ var HttpsClient = &http.Client{
 }
 
 func JSON(url string, data interface{}, result interface{}, funcHeader func(header http.Header)) error {
-
 	b, err := json.Marshal(data)
 	if err != nil {
 		return err
