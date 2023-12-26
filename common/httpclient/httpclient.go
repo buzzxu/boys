@@ -15,6 +15,8 @@ import (
 	"time"
 )
 
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
 var HttpClient = &http.Client{
 	Timeout: 10 * time.Minute,
 }
@@ -27,7 +29,7 @@ func JSON(url string, data interface{}, result interface{}, funcHeader func(head
 			funcHeader(header)
 		}
 	}, func(response *http.Response) error {
-		var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
 		return json.NewDecoder(response.Body).Decode(result)
 	})
 }

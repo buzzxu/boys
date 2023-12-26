@@ -3,8 +3,8 @@ package httpsclient
 import (
 	"bytes"
 	"crypto/tls"
-	"encoding/json"
 	"github.com/buzzxu/boys/common/httpclient"
+	jsoniter "github.com/json-iterator/go"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 var HttpsClient = &http.Client{
 	Timeout: 3 * time.Second,
 	Transport: &http.Transport{
@@ -20,6 +21,7 @@ var HttpsClient = &http.Client{
 }
 
 func JSON(url string, data interface{}, result interface{}, funcHeader func(header http.Header)) error {
+
 	b, err := json.Marshal(data)
 	if err != nil {
 		return err
