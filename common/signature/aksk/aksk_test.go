@@ -34,7 +34,7 @@ func TestSignature(t *testing.T) {
 }
 func TestSha1(t *testing.T) {
 	appkey := "xwjd"
-	secret := "XWJD010230441222212312313V"
+	secret := "xxxxx"
 	content := "c0qX08"
 	timestamp := int64(1703514656)
 	sign := SHA1(appkey, secret, content, timestamp)
