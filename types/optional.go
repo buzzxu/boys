@@ -1,5 +1,7 @@
 package types
 
+import "reflect"
+
 // Optional 定义一个 Optional 类型。
 type Optional[T any] struct {
 	value T
@@ -12,7 +14,13 @@ func NewOptional[T any](value T) Optional[T] {
 
 // IsEmpty 检查 Optional 对象是否为空。
 func (o Optional[T]) IsEmpty() bool {
-	return o.value == nil
+	v := reflect.ValueOf(o.value)
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Slice, reflect.Map, reflect.Func, reflect.Chan, reflect.Interface:
+		return v.IsNil()
+	default:
+		return false
+	}
 }
 
 // Get 获取 Optional 对象的值。

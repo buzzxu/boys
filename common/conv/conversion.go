@@ -1,13 +1,109 @@
 package conv
 
 import (
-	"errors"
 	"fmt"
 	"github.com/buzzxu/boys/common/bytess"
 	"reflect"
-	"strconv"
-	"time"
 )
+
+func ToAny[T any](a any) T {
+	v, _ := ToAnyλ[T](a)
+	return v
+}
+
+// ToAnyλ converts one type to another and returns an error if occurred.
+func ToAnyλ[T any](a any) (T, error) {
+	var t T
+	switch any(t).(type) {
+	case bool:
+		v, err := ToBoolλ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case int:
+		v, err := ToIntλ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case int8:
+		v, err := ToInt8λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case int16:
+		v, err := ToInt16λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case int32:
+		v, err := ToInt32λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case int64:
+		v, err := ToInt64λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case uint:
+		v, err := ToUintλ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case uint8:
+		v, err := ToUint8λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case uint16:
+		v, err := ToUint16λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case uint32:
+		v, err := ToUint32λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case uint64:
+		v, err := ToUint64λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case float32:
+		v, err := ToFloat32λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case float64:
+		v, err := ToFloat64λ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	case string:
+		v, err := ToStringλ(a)
+		if err != nil {
+			return t, err
+		}
+		t = any(v).(T)
+	default:
+		return t, fmt.Errorf("the type %T is not supported", t)
+	}
+	return t, nil
+}
 
 // []byte to string
 func String(bytes *[]byte) *string {
@@ -50,88 +146,4 @@ func UintPtrTo64(ptr interface{}) (value uint64) {
 		}
 	}
 	return
-}
-
-// StructToMap struct 转Map
-func StructToMap(obj interface{}) map[string]interface{} {
-	t := reflect.TypeOf(obj)
-	v := reflect.ValueOf(obj)
-
-	var data = make(map[string]interface{})
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		if len(f.Tag.Get("json")) == 0 {
-			data[f.Name] = v.Field(i).Interface()
-			continue
-		}
-		data[f.Tag.Get("json")] = v.Field(i).Interface()
-	}
-	return data
-}
-
-// MapToStruct map转Struct
-func MapToStruct(data map[string]interface{}, obj interface{}) error {
-	for k, v := range data {
-		err := setField(obj, k, v)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// setField 用map的值替换结构的值
-func setField(obj interface{}, name string, value interface{}) error {
-	structValue := reflect.ValueOf(obj).Elem()        //结构体属性值
-	structFieldValue := structValue.FieldByName(name) //结构体单个属性值
-	if !structFieldValue.IsValid() {
-		return fmt.Errorf("No such field: %s in obj", name)
-	}
-	if !structFieldValue.CanSet() {
-		return fmt.Errorf("Cannot set %s field value", name)
-	}
-	structFieldType := structFieldValue.Type() //结构体的类型
-	val := reflect.ValueOf(value)              //map值的反射值
-	var err error
-	if structFieldType != val.Type() {
-		val, err = typeConversion(fmt.Sprintf("%v", value), structFieldValue.Type().Name()) //类型转换
-		if err != nil {
-			return err
-		}
-	}
-	structFieldValue.Set(val)
-	return nil
-}
-
-// typeConversion 类型转换
-func typeConversion(value string, ntype string) (reflect.Value, error) {
-	if ntype == "string" {
-		return reflect.ValueOf(value), nil
-	} else if ntype == "time.Time" {
-		t, err := time.ParseInLocation("2006-01-02 15:04:05", value, time.Local)
-		return reflect.ValueOf(t), err
-	} else if ntype == "Time" {
-		t, err := time.ParseInLocation("2006-01-02 15:04:05", value, time.Local)
-		return reflect.ValueOf(t), err
-	} else if ntype == "int" {
-		i, err := strconv.Atoi(value)
-		return reflect.ValueOf(i), err
-	} else if ntype == "int8" {
-		i, err := strconv.ParseInt(value, 10, 64)
-		return reflect.ValueOf(int8(i)), err
-	} else if ntype == "int32" {
-		i, err := strconv.ParseInt(value, 10, 64)
-		return reflect.ValueOf(int64(i)), err
-	} else if ntype == "int64" {
-		i, err := strconv.ParseInt(value, 10, 64)
-		return reflect.ValueOf(i), err
-	} else if ntype == "float32" {
-		i, err := strconv.ParseFloat(value, 64)
-		return reflect.ValueOf(float32(i)), err
-	} else if ntype == "float64" {
-		i, err := strconv.ParseFloat(value, 64)
-		return reflect.ValueOf(i), err
-	}
-	//else if .......增加其他一些类型的转换
-	return reflect.ValueOf(value), errors.New("未知的类型：" + ntype)
 }
