@@ -3,6 +3,7 @@ package strs
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"github.com/mozillazg/go-pinyin"
 	"hash/fnv"
 	"regexp"
 	"strconv"
@@ -384,4 +385,23 @@ func Concat(strs ...string) string {
 		b.WriteString(v)
 	}
 	return b.String()
+}
+
+func FirstLetter(name string) string {
+	if name == "" {
+		return ""
+	}
+
+	r := []rune(name)                  // 转换为 rune 切片，以便处理中英文字符
+	if unicode.Is(unicode.Han, r[0]) { // 判断是否为汉字
+		a := pinyin.NewArgs() // 创建默认参数
+		py := pinyin.Pinyin(string(r[0]), a)
+		if len(py) > 0 && len(py[0]) > 0 {
+			return string([]rune(py[0][0])[0])
+		}
+	} else if unicode.IsLetter(r[0]) { // 判断是否为英文字母
+		return string(unicode.ToUpper(r[0]))
+	}
+
+	return ""
 }

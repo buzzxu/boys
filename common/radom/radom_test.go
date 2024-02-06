@@ -8,9 +8,13 @@ func TestLength(t *testing.T) {
 
 func TestAlphanumeric(t *testing.T) {
 
-	println(Alphanumeric(4))
+	println(Alphanumeric(16))
 }
 
 func TestAlphabetic(t *testing.T) {
 	println(Alphabetic(32))
+}
+
+func TestTimeID(t *testing.T) {
+	println(TimeId())
 }
