@@ -4,13 +4,9 @@ import (
 	crand "crypto/rand"
 	"fmt"
 	"math/big"
-	"math/rand"
+	"math/rand/v2"
 	"time"
 	"unsafe"
-)
-
-var (
-	randSrc = rand.NewSource(time.Now().UnixNano())
 )
 
 const (
@@ -59,9 +55,9 @@ func TimeId() string {
 // radom 生成随机字符串
 func radom(count int, str string) string {
 	b := make([]byte, count)
-	for i, cache, remain := count-1, randSrc.Int63(), letterIdxMax; i >= 0; {
+	for i, cache, remain := count-1, rand.Int64(), letterIdxMax; i >= 0; {
 		if remain == 0 {
-			cache, remain = randSrc.Int63(), letterIdxMax
+			cache, remain = rand.Int64(), letterIdxMax
 		}
 		if idx := int(cache & letterIdxMask); idx < len(str) {
 			b[i] = str[idx]
