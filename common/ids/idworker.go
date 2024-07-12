@@ -35,14 +35,14 @@ type IDWorker struct {
 	sequence      int64
 }
 
-func NewDefIDWorker() (*IDWorker, error) {
+func NewIDWorker() (*IDWorker, error) {
 	workerID, datacenterID, err := generateIDs()
 	if err != nil {
 		return nil, err
 	}
-	return NewIDWorker(workerID, datacenterID)
+	return NewIDWorkerWith(workerID, datacenterID)
 }
-func NewIDWorker(workerID, datacenterID int64) (*IDWorker, error) {
+func NewIDWorkerWith(workerID, datacenterID int64) (*IDWorker, error) {
 	return &IDWorker{
 		lastTimestamp: 0,
 		workerID:      workerID,
