@@ -151,6 +151,9 @@ func IsNoneEmpty(strings ...string) bool {
 	}
 	return true
 }
+func IsNullOrEmpty(val string) bool {
+	return strings.TrimSpace(val) == ""
+}
 
 // IsBlank checks if a string is whitespace or empty
 func IsBlank(s string) bool {
