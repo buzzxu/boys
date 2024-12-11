@@ -7,7 +7,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mozillazg/go-pinyin v0.20.0
-	golang.org/x/crypto v0.18.0
+	golang.org/x/crypto v0.31.0
 )
 
 require (
