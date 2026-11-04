@@ -1,8 +1,6 @@
 module github.com/buzzxu/boys
 
-go 1.24.0
-
-toolchain go1.24.2
+go 1.27.3
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
